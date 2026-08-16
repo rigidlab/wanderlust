@@ -1,0 +1,45 @@
+/* Design tokens. The whole book's look lives here - change these, not the
+   components. Values chosen to echo Gestalten's Wanderlust: warm paper stock,
+   soft black ink, one muted accent, nothing pure white or pure black. */
+
+:root {
+  /* --- Colour ------------------------------------------------------- */
+  --paper: #f7f5f0;
+  --paper-deep: #eeebe3; /* recessed panels, contents rows */
+  --ink: #1a1a18;
+  --ink-muted: #6b675f; /* captions, labels, metadata */
+  --rule: #d6d1c6; /* hairlines */
+  --accent: #7a6a52; /* pulled from the photographs - adjust per book */
+  --ink-invert: #f7f5f0; /* type set over photographs */
+
+  /* --- Type --------------------------------------------------------- */
+  --font-display: "Playfair Display", "Iowan Old Style", Georgia, serif;
+  --font-body: "Inter", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+
+  /* Fluid scale, 1.25 ratio at the small end, wider at the top so chapter
+     titles genuinely dominate the page the way they do in print. */
+  --step--1: clamp(0.78rem, 0.76rem + 0.1vw, 0.84rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.13rem);
+  --step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.6rem);
+  --step-2: clamp(1.6rem, 1.35rem + 1.2vw, 2.5rem);
+  --step-3: clamp(2.1rem, 1.5rem + 3vw, 4rem);
+  --step-4: clamp(2.8rem, 1.4rem + 7vw, 7.5rem);
+
+  --leading-tight: 1.08;
+  --leading-body: 1.65;
+  --tracking-label: 0.16em; /* letterspaced small caps */
+  --measure: 34rem; /* ~66 characters */
+
+  /* --- Space -------------------------------------------------------- */
+  --space-2xs: 0.375rem;
+  --space-xs: 0.75rem;
+  --space-s: 1.25rem;
+  --space-m: 2rem;
+  --space-l: 3.5rem;
+  --space-xl: 6rem;
+  --space-2xl: clamp(6rem, 12vw, 12rem); /* between spreads */
+
+  --gutter: clamp(1.25rem, 6vw, 6rem); /* page margin */
+  --gap-photo: clamp(0.5rem, 1.2vw, 1.25rem); /* between images in a spread */
+  --content-max: 78rem;
+}

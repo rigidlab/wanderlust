@@ -1,0 +1,66 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "A photobook of long walks." } = Astro.props;
+const home = import.meta.env.BASE_URL;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f7f5f0" />
+    <title>{title}</title>
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <!-- TODO: self-host these before launch to drop the third-party request. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500&display=swap"
+    />
+  </head>
+  <body>
+    <a class="skip" href="#book">Skip to the photographs</a>
+    <main id="book">
+      <slot />
+    </main>
+    <footer class="colophon">
+      <hr class="rule" />
+      <div class="colophon__inner page">
+        <p class="label">Wanderlust &mdash; photographs and words by Phu Ta</p>
+        <p class="label"><a href={home}>Contents</a></p>
+      </div>
+    </footer>
+    <style>
+      .skip {
+        position: absolute;
+        left: -9999px;
+      }
+      .skip:focus {
+        left: var(--gutter);
+        top: var(--space-xs);
+        z-index: 10;
+        background: var(--paper);
+        padding: var(--space-xs) var(--space-s);
+      }
+      .colophon {
+        margin-top: var(--space-2xl);
+      }
+      .colophon__inner {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-s);
+        justify-content: space-between;
+        padding-block: var(--space-m) var(--space-l);
+      }
+    </style>
+  </body>
+</html>
