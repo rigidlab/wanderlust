@@ -1,0 +1,41 @@
+---
+import { Picture } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+// Single place where every photograph on the site is emitted, so the format
+// ladder, widths and loading strategy are decided once.
+interface Props {
+  src: ImageMetadata;
+  alt?: string;
+  /** CSS `sizes` - how wide this image renders at a given viewport. */
+  sizes: string;
+  /** First image on the page should be eager + high priority. */
+  priority?: boolean;
+  class?: string;
+}
+
+const {
+  src,
+  alt = "",
+  sizes,
+  priority = false,
+  class: className,
+} = Astro.props;
+
+// Masters are 2560px on the long edge; never upscale past that.
+const widths = [640, 960, 1280, 1600, 1920, 2560].filter((w) => w <= src.width);
+---
+
+<Picture
+  src={src}
+  alt={alt}
+  widths={widths.length > 0 ? widths : [src.width]}
+  sizes={sizes}
+  formats={["avif", "webp"]}
+  fallbackFormat="jpeg"
+  quality={78}
+  loading={priority ? "eager" : "lazy"}
+  decoding={priority ? "sync" : "async"}
+  fetchpriority={priority ? "high" : "auto"}
+  class={className}
+/>

@@ -1,0 +1,60 @@
+---
+import Photo from "../Photo.astro";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  photo: ImageMetadata;
+  text: string;
+  heading?: string;
+  caption?: string;
+  side?: "left" | "right";
+}
+
+const { photo, text, heading, caption, side = "right" } = Astro.props;
+const paragraphs = text.trim().split(/\n\s*\n/);
+---
+
+<section class:list={["spread", "text-image", "page", `is-${side}`]}>
+  <div class="text-image__prose measure">
+    {heading && <h2 class="text-image__heading">{heading}</h2>}
+    {paragraphs.map((p) => <p>{p}</p>)}
+  </div>
+  <figure class="text-image__figure">
+    <Photo src={photo} sizes="(max-width: 48rem) 100vw, 40vw" />
+    {caption && <figcaption class="caption">{caption}</figcaption>}
+  </figure>
+</section>
+
+<style>
+  .text-image {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, 0.85fr);
+    gap: var(--space-l);
+    align-items: center;
+  }
+  /* Photograph on the left: swap the visual order, keep the DOM order so the
+     prose is still read first by a screen reader. */
+  .text-image.is-left .text-image__prose {
+    order: 2;
+  }
+  .text-image.is-left .text-image__figure {
+    order: 1;
+  }
+  .text-image__heading {
+    font-size: var(--step-2);
+    margin-bottom: var(--space-s);
+  }
+  .text-image__figure {
+    margin: 0;
+  }
+  @media (max-width: 48rem) {
+    .text-image {
+      grid-template-columns: 1fr;
+      gap: var(--space-m);
+    }
+    .text-image.is-left .text-image__prose,
+    .text-image.is-left .text-image__figure {
+      order: initial;
+    }
+  }
+</style>

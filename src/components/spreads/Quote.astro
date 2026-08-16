@@ -1,0 +1,34 @@
+---
+interface Props {
+  text: string;
+  attribution?: string;
+}
+
+const { text, attribution } = Astro.props;
+---
+
+<figure class="spread quote page">
+  <blockquote class="quote__text">&ldquo;{text}&rdquo;</blockquote>
+  {attribution && <figcaption class="label quote__by">{attribution}</figcaption>}
+</figure>
+
+<style>
+  .quote {
+    margin: 0;
+    max-width: 46rem;
+    padding-block: var(--space-l);
+  }
+  .quote__text {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--step-3);
+    line-height: 1.2;
+    text-wrap: balance;
+    /* Hang the opening quote mark into the margin, as the book does. */
+    text-indent: -0.42em;
+  }
+  .quote__by {
+    margin-top: var(--space-m);
+  }
+</style>

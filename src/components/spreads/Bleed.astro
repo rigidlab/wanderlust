@@ -1,0 +1,37 @@
+---
+import Photo from "../Photo.astro";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  photo: ImageMetadata;
+  caption?: string;
+  priority?: boolean;
+}
+
+const { photo, caption, priority = false } = Astro.props;
+---
+
+<figure class="spread bleed">
+  <Photo src={photo} sizes="100vw" priority={priority} class="bleed__img" />
+  {
+    caption && (
+      <figcaption class="caption page">
+        <span>{caption}</span>
+      </figcaption>
+    )
+  }
+</figure>
+
+<style>
+  .bleed {
+    margin: 0;
+  }
+  .bleed :global(.bleed__img) {
+    width: 100%;
+    height: min(92svh, 68rem);
+    object-fit: cover;
+  }
+  .bleed figcaption {
+    padding-top: var(--space-xs);
+  }
+</style>

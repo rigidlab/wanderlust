@@ -1,0 +1,60 @@
+---
+// The book's signature element: a bordered grid of letterspaced labels over
+// larger values. Empty fields are dropped rather than rendered blank.
+interface Props {
+  stats: {
+    length?: string;
+    duration?: string;
+    elevation?: string;
+    difficulty?: string;
+    season?: string;
+  };
+}
+
+const { stats } = Astro.props;
+
+const rows: Array<[string, string | undefined]> = [
+  ["Length", stats.length],
+  ["Duration", stats.duration],
+  ["Elevation gain", stats.elevation],
+  ["Difficulty", stats.difficulty],
+  ["Best season", stats.season],
+];
+
+const entries = rows.filter((row): row is [string, string] => Boolean(row[1]));
+---
+
+{
+  entries.length > 0 && (
+    <dl class="data">
+      {entries.map(([label, value]) => (
+        <div class="data__cell">
+          <dt class="label">{label}</dt>
+          <dd class="data__value">{value}</dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
+<style>
+  .data {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 0;
+    margin: 0;
+    border-top: 1px solid var(--rule);
+    border-left: 1px solid var(--rule);
+  }
+  .data__cell {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: var(--space-s) var(--space-s) var(--space-m);
+  }
+  .data__value {
+    margin: var(--space-2xs) 0 0;
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: 1.15;
+  }
+</style>

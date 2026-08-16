@@ -1,0 +1,56 @@
+---
+import Bleed from "./spreads/Bleed.astro";
+import Duo from "./spreads/Duo.astro";
+import Triptych from "./spreads/Triptych.astro";
+import TextImage from "./spreads/TextImage.astro";
+import Quote from "./spreads/Quote.astro";
+import type { CollectionEntry } from "astro:content";
+import type { ImageMetadata } from "astro";
+
+// Turns one frontmatter spread entry into the matching component. Adding a
+// spread type means: extend the schema, add a component, add a case here.
+type SpreadData = CollectionEntry<"trails">["data"]["spreads"][number];
+
+interface Props {
+  spread: SpreadData;
+}
+
+const { spread } = Astro.props;
+---
+
+{spread.type === "bleed" && <Bleed photo={spread.photo} caption={spread.caption} />}
+{
+  spread.type === "duo" && (
+    // astro:content's generated types widen z.tuple() to an array, even
+    // though the Zod schema (content.config.ts) enforces exactly two items
+    // at build time. The runtime shape is guaranteed; only inference is lossy.
+    <Duo
+      photos={spread.photos as [ImageMetadata, ImageMetadata]}
+      caption={spread.caption}
+    />
+  )
+}
+{
+  spread.type === "triptych" && (
+    <Triptych
+      photos={spread.photos as [ImageMetadata, ImageMetadata, ImageMetadata]}
+      caption={spread.caption}
+    />
+  )
+}
+{
+  spread.type === "text-image" && (
+    <TextImage
+      photo={spread.photo}
+      text={spread.text}
+      heading={spread.heading}
+      caption={spread.caption}
+      side={spread.side}
+    />
+  )
+}
+{
+  spread.type === "quote" && (
+    <Quote text={spread.text} attribution={spread.attribution} />
+  )
+}

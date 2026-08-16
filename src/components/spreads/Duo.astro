@@ -1,0 +1,47 @@
+---
+import Photo from "../Photo.astro";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  photos: [ImageMetadata, ImageMetadata];
+  caption?: string;
+}
+
+const { photos, caption } = Astro.props;
+---
+
+<figure class="spread duo page">
+  <div class="duo__grid">
+    {
+      photos.map((photo) => (
+        <Photo src={photo} sizes="(max-width: 48rem) 100vw, 45vw" class="duo__img" />
+      ))
+    }
+  </div>
+  {caption && <figcaption class="caption">{caption}</figcaption>}
+</figure>
+
+<style>
+  .duo {
+    margin: 0;
+  }
+  .duo__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap-photo);
+  }
+  /* Matched heights: the pair reads as one spread, not two photographs. */
+  .duo :global(.duo__img) {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  @media (max-width: 48rem) {
+    .duo__grid {
+      grid-template-columns: 1fr;
+    }
+    .duo :global(.duo__img) {
+      aspect-ratio: 3 / 2;
+    }
+  }
+</style>
