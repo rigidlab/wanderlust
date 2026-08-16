@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.astro/
+*.log
+.DS_Store
+Thumbs.db
+.env
+.env.*
+
+# Full-resolution originals and RAW files never enter the repo - only the
+# 2560px sRGB web masters under src/content/trails/*/photos/ do.
+originals/
+*.ARW
+*.CR2
+*.CR3
+*.NEF
+*.dng
+*.DNG
+*.tif
+*.tiff
+*.psd
