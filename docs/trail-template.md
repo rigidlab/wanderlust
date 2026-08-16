@@ -52,7 +52,7 @@ spreads:
 
   - type: quote
     text: The mountains are calling and I must go.
-    attribution: John Muir
+    attribution: The wife
 
   - type: triptych
     photos:
