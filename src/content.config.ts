@@ -20,8 +20,6 @@ const spread = (image: ImageFunction) =>
       type: z.literal("bleed"),
       photo: image(),
       caption: z.string().optional(),
-      // Overlay the trail name on this image (used for chapter openers).
-      title: z.boolean().default(false),
     }),
     // Two photographs side by side, matched heights.
     z.object({
