@@ -1,5 +1,5 @@
 ---
-title: The John Muir Trail
+title: The John Muir Trail - 2024
 region: Sierra Nevada, California
 country: United States
 order: 1
@@ -21,18 +21,14 @@ intro: >-
 spreads:
   - type: bleed
     photo: ./photos/03-lake-talus.jpg
-    caption: Talus running down to the water's edge.
+    caption: Backpackers fishing on the high lakes
 
   - type: text-image
     side: right
     photo: ./photos/02-trail-marker.jpg
     heading: Into the wilderness
     text: |-
-      REPLACE THIS TEXT. Two or three paragraphs in your own words - where you
-      started, who you walked with, what the first days felt like.
-
-      The prose column is deliberately narrow and the photographs carry the
-      chapter, so this does not need to be long.
+      Here we go into the JMT
     caption: A marker at the top of the pass.
 
   - type: duo
@@ -52,11 +48,11 @@ spreads:
 
   - type: quote
     text: The mountains are calling and I must go.
-    attribution: John Muir
+    attribution: The wife
 
   - type: bleed
     photo: ./photos/09-granite-slabs.jpg
-    caption: Bare granite, camp pitched wherever it goes flat.
+    caption: Camping anywhere flat + our water filtration setup
 
   - type: triptych
     photos:
@@ -73,8 +69,7 @@ spreads:
     photo: ./photos/16-basin-lake.jpg
     heading: The passes
     text: |-
-      REPLACE THIS TEXT. The middle stretch - the passes, the days that ran
-      long, the weather.
+      Cute little lake down the pass
     caption: A lake held in the basin below the pass.
 
   - type: duo
@@ -99,8 +94,7 @@ spreads:
     photo: ./photos/20-charlotte-lake-sign.jpg
     heading: Junctions
     text: |-
-      REPLACE THIS TEXT. Resupply, the arithmetic of miles and food, the
-      decisions made at trail junctions.
+      We found a marker - Yay !
     caption: Charlotte Lake, Vidette Meadow, Rae Lakes - the distances that
       structure a day.
 
@@ -119,12 +113,8 @@ spreads:
     photo: ./photos/26-whitney-notch.jpg
     heading: Whitney
     text: |-
-      REPLACE THIS TEXT. The final climb and what it was like to finish.
+      The final countdown
     caption: Looking east through the notch.
 ---
 
-REPLACE THIS BODY TEXT. This is the chapter's prose, set in a narrow column
-under the data block - two or three paragraphs about the walk as a whole.
-
-Sub-headings are available if you want practical notes: permits, resupply,
-which direction you walked and why.
+Our adventure through the JMT from Bishop Pass
