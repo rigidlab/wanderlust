@@ -9,6 +9,64 @@ One book, many trails. Each trip is a chapter.
 
 ---
 
+## TL;DR — add a trip
+
+```bash
+mkdir -p src/content/trails/02-wonderland/photos   # 1. directory
+cp docs/trail-template.md src/content/trails/02-wonderland/index.md
+# 2. copy your JPEGs (sRGB, 2560px long edge) into photos/
+npm run dev                                         # 3. http://localhost:4321/wanderlust/
+```
+
+Then edit `index.md`. Top half = the facts, bottom half = the layout:
+
+```yaml
+---
+title: The Wonderland Trail
+region: Mount Rainier, Washington
+country: United States
+order: 2                              # position in the book
+cover: ./photos/01-rainier.jpg
+stats:
+  length: 150 km                      # any of these can be left out
+  duration: 10 days
+intro: One or two sentences, set large under the title.
+
+spreads:                              # the layout, top to bottom
+  - type: bleed                       # 1 photo, full width
+    photo: ./photos/02-glacier.jpg
+    caption: Optional.
+
+  - type: duo                         # 2 photos side by side
+    photos: [./photos/03.jpg, ./photos/04.jpg]
+
+  - type: triptych                    # 3 photos: 1 tall + 2 stacked
+    photos: [./photos/05.jpg, ./photos/06.jpg, ./photos/07.jpg]
+
+  - type: text-image                  # prose next to 1 photo
+    photo: ./photos/08.jpg
+    side: left                        # or right (default)
+    heading: Optional
+    text: Your words here.
+
+  - type: quote                       # big serif pull quote
+    text: The mountains are calling and I must go.
+    attribution: John Muir
+---
+
+Prose for the chapter goes here.
+```
+
+Save, and the browser reloads. Repeat `- type:` blocks in any order, as many
+times as you like. `git push` publishes it.
+
+**Want a different look?** Edit `src/styles/tokens.css` — colours, fonts and
+spacing for the whole book live there.
+
+Everything below is detail.
+
+---
+
 ## Develop
 
 Requires Node 22+.
