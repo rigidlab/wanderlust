@@ -1,0 +1,93 @@
+---
+import Photo from "../Photo.astro";
+import type { CollectionEntry } from "astro:content";
+import type { ImageMetadata } from "astro";
+
+// One frontmatter spread, rendered as book pages.
+//
+// The landscape/portrait reflow is pure CSS. A `.leaf` is one page in
+// landscape; in the split media query it becomes `display: contents`, its
+// wrapper dissolves, and each `.part` inside becomes its own snap page.
+// Resizing or rotating reflows with no JavaScript.
+type SpreadData = CollectionEntry<"trails">["data"]["spreads"][number];
+
+interface Props {
+  spread: SpreadData;
+  priority?: boolean;
+}
+
+const { spread, priority = false } = Astro.props;
+
+// A photo that fills a whole page in portrait, half a leaf in landscape.
+const HALF = "(max-aspect-ratio: 1/1) 100vw, 50vw";
+const THIRD = "(max-aspect-ratio: 1/1) 100vw, 40vw";
+const FULL = "100vw";
+---
+
+{
+  spread.type === "bleed" && (
+    <figure class="sheet sheet--photo">
+      <Photo src={spread.photo} sizes={FULL} priority={priority} class="fill" />
+      {spread.caption && <figcaption class="sheet__caption">{spread.caption}</figcaption>}
+    </figure>
+  )
+}
+
+{
+  spread.type === "duo" && (
+    <div class="leaf leaf--2">
+      {(spread.photos as [ImageMetadata, ImageMetadata]).map((photo) => (
+        <figure class="part sheet--photo">
+          <Photo src={photo} sizes={HALF} priority={priority} class="fill" />
+        </figure>
+      ))}
+      {spread.caption && <figcaption class="leaf__caption">{spread.caption}</figcaption>}
+    </div>
+  )
+}
+
+{
+  spread.type === "triptych" && (
+    <div class="leaf leaf--3">
+      {(spread.photos as [ImageMetadata, ImageMetadata, ImageMetadata]).map((photo) => (
+        <figure class="part sheet--photo">
+          <Photo src={photo} sizes={THIRD} class="fill" />
+        </figure>
+      ))}
+      {spread.caption && <figcaption class="leaf__caption">{spread.caption}</figcaption>}
+    </div>
+  )
+}
+
+{
+  spread.type === "text-image" && (
+    <div class:list={["leaf", "leaf--2", `is-${spread.side}`]}>
+      <section class="part sheet--prose">
+        <div class="prose-block">
+          {spread.heading && <h2 class="sheet__heading">{spread.heading}</h2>}
+          {spread.text
+            .trim()
+            .split(/\n\s*\n/)
+            .map((p) => (
+              <p>{p}</p>
+            ))}
+        </div>
+      </section>
+      <figure class="part sheet--photo">
+        <Photo src={spread.photo} sizes={HALF} class="fill" />
+        {spread.caption && <figcaption class="sheet__caption">{spread.caption}</figcaption>}
+      </figure>
+    </div>
+  )
+}
+
+{
+  spread.type === "quote" && (
+    <section class="sheet sheet--prose">
+      <figure class="quote-block">
+        <blockquote>&ldquo;{spread.text}&rdquo;</blockquote>
+        {spread.attribution && <figcaption class="label">{spread.attribution}</figcaption>}
+      </figure>
+    </section>
+  )
+}
