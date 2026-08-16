@@ -1,0 +1,137 @@
+---
+import { getCollection } from "astro:content";
+import Book from "../layouts/Book.astro";
+import Photo from "../components/Photo.astro";
+
+const trails = (await getCollection("trails", ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const cover = trails[0];
+---
+
+<Book title="Wanderlust" description="A photobook of long walks.">
+  <section class="cover">
+    {
+      cover && (
+        <Photo src={cover.data.cover} sizes="100vw" priority class="cover__img" alt="" />
+      )
+    }
+    <div class="cover__scrim"></div>
+    <div class="cover__type page">
+      <h1 class="cover__title">Wanderlust</h1>
+      <p class="label cover__sub">Photographs from the long walks</p>
+    </div>
+  </section>
+
+  <section class="contents page" aria-labelledby="contents-heading">
+    <h2 id="contents-heading" class="label contents__label">Contents</h2>
+    <ol class="contents__list">
+      {
+        trails.map((trail) => (
+          <li class="contents__row">
+            <a class="contents__link" href={`${base}/trails/${trail.id.replace(/\/index$/, "")}/`}>
+              <span class="contents__thumb">
+                <Photo src={trail.data.cover} sizes="120px" alt="" />
+              </span>
+              <span class="contents__text">
+                <span class="contents__title">{trail.data.title}</span>
+                <span class="label">
+                  {trail.data.region} &mdash; {trail.data.country}
+                </span>
+              </span>
+              <span class="label contents__num">
+                {String(trail.data.order).padStart(2, "0")}
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+    {
+      trails.length === 0 && (
+        <p class="measure">
+          No trails yet. Add a directory under <code>src/content/trails/</code> with an{" "}
+          <code>index.md</code> and a <code>photos/</code> folder.
+        </p>
+      )
+    }
+  </section>
+</Book>
+
+<style>
+  .cover {
+    display: grid;
+    isolation: isolate;
+  }
+  .cover > :global(*) {
+    grid-area: 1 / 1;
+  }
+  .cover :global(.cover__img) {
+    width: 100%;
+    height: 100svh;
+    object-fit: cover;
+  }
+  .cover__scrim {
+    background: linear-gradient(
+      to bottom,
+      rgb(12 11 10 / 0.35) 0%,
+      rgb(12 11 10 / 0.1) 45%,
+      rgb(12 11 10 / 0.45) 100%
+    );
+  }
+  .cover__type {
+    align-self: center;
+    justify-self: start;
+    color: var(--ink-invert);
+    text-align: left;
+  }
+  .cover__title {
+    font-size: var(--step-4);
+    letter-spacing: -0.01em;
+  }
+  .cover__sub {
+    color: rgb(247 245 240 / 0.8);
+    margin-top: var(--space-s);
+  }
+
+  .contents {
+    padding-block: var(--space-xl);
+  }
+  .contents__label {
+    margin-bottom: var(--space-m);
+  }
+  .contents__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .contents__link {
+    display: grid;
+    grid-template-columns: 5rem 1fr auto;
+    align-items: center;
+    gap: var(--space-s);
+    padding-block: var(--space-s);
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+  }
+  .contents__link:hover .contents__title {
+    color: var(--accent);
+  }
+  .contents__thumb :global(img) {
+    width: 5rem;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+  .contents__text {
+    display: grid;
+    gap: var(--space-2xs);
+  }
+  .contents__title {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    transition: color 0.2s ease;
+  }
+</style>
