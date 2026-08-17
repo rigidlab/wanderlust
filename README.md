@@ -7,6 +7,13 @@ published to GitHub Pages at
 
 One book, many trails. Each trip is a chapter.
 
+Every chapter reads two ways, from the same content:
+
+| View | URL | Behaviour |
+|------|-----|-----------|
+| **Book** (default) | `/trails/<slug>/` | Full-viewport pages, arrow keys / swipe / buttons. Two-page spreads in landscape, one photograph per page in portrait |
+| Scrolling | `/scroll/<slug>/` | Long-form vertical page, better for skimming |
+
 ---
 
 ## TL;DR — add a trip
@@ -102,7 +109,8 @@ mkdir -p src/content/trails/02-wonderland/photos
 cp docs/trail-template.md src/content/trails/02-wonderland/index.md
 ```
 
-Directory name becomes the URL: `/wanderlust/trails/02-wonderland/`.
+Directory name becomes the URL: `/wanderlust/trails/02-wonderland/` for the
+book, `/wanderlust/scroll/02-wonderland/` for the scrolling version.
 
 **2. Add photographs**
 

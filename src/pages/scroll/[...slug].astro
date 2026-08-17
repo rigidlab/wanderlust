@@ -1,0 +1,105 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Book from "../../layouts/Book.astro";
+import ChapterOpener from "../../components/ChapterOpener.astro";
+import DataBlock from "../../components/DataBlock.astro";
+import Spread from "../../components/Spread.astro";
+
+export async function getStaticPaths() {
+  const trails = (await getCollection("trails", ({ data }) => !data.draft)).sort(
+    (a, b) => a.data.order - b.data.order,
+  );
+
+  return trails.map((trail, i) => ({
+    params: { slug: trail.id.replace(/\/index$/, "") },
+    props: { trail, next: trails[i + 1] },
+  }));
+}
+
+interface Props {
+  trail: CollectionEntry<"trails">;
+  next?: CollectionEntry<"trails">;
+}
+
+const { trail, next } = Astro.props;
+const { Content } = await render(trail);
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const readUrl = `${base}/trails/${trail.id.replace(/\/index$/, "")}/`;
+---
+
+<Book title={`${trail.data.title} — Wanderlust`} description={trail.data.intro}>
+  <ChapterOpener
+    photo={trail.data.cover}
+    title={trail.data.title}
+    region={trail.data.region}
+    country={trail.data.country}
+    number={trail.data.order}
+  />
+
+  <section class="chapter page">
+    <p class="standfirst measure">{trail.data.intro}</p>
+    <p><a class="read-link label" href={readUrl}>Read as a book &rarr;</a></p>
+    <DataBlock stats={trail.data.stats} />
+    <div class="prose measure">
+      <Content />
+    </div>
+  </section>
+
+  {trail.data.spreads.map((spread) => <Spread spread={spread} />)}
+
+  <nav class="page next">
+    <hr class="rule" />
+    {
+      next ? (
+        <a class="next__link" href={`${base}/scroll/${next.id.replace(/\/index$/, "")}/`}>
+          <span class="label">Next trail</span>
+          <span class="next__title">{next.data.title}</span>
+        </a>
+      ) : (
+        <a class="next__link" href={`${base}/`}>
+          <span class="label">End of the book</span>
+          <span class="next__title">Back to contents</span>
+        </a>
+      )
+    }
+  </nav>
+</Book>
+
+<style>
+  .chapter {
+    padding-block: var(--space-xl);
+    display: grid;
+    gap: var(--space-l);
+  }
+  .standfirst {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    line-height: 1.3;
+    margin: 0;
+  }
+  .read-link {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 0.15em;
+  }
+  .prose :global(h2) {
+    font-size: var(--step-1);
+    margin-top: var(--space-m);
+    margin-bottom: var(--space-xs);
+  }
+  .next {
+    padding-block: var(--space-l) 0;
+    margin-top: var(--space-2xl);
+  }
+  .next__link {
+    display: grid;
+    gap: var(--space-2xs);
+    padding-top: var(--space-s);
+    text-decoration: none;
+  }
+  .next__title {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+  }
+</style>

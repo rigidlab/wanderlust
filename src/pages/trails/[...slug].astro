@@ -1,105 +1,387 @@
 ---
-import { getCollection, render, type CollectionEntry } from "astro:content";
-import Book from "../../layouts/Book.astro";
-import ChapterOpener from "../../components/ChapterOpener.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+import Reader from "../../layouts/Reader.astro";
+import BookSpread from "../../components/book/BookSpread.astro";
+import Photo from "../../components/Photo.astro";
 import DataBlock from "../../components/DataBlock.astro";
-import Spread from "../../components/Spread.astro";
 
 export async function getStaticPaths() {
   const trails = (await getCollection("trails", ({ data }) => !data.draft)).sort(
     (a, b) => a.data.order - b.data.order,
   );
-
-  return trails.map((trail, i) => ({
+  return trails.map((trail) => ({
     params: { slug: trail.id.replace(/\/index$/, "") },
-    props: { trail, next: trails[i + 1] },
+    props: { trail },
   }));
 }
 
 interface Props {
   trail: CollectionEntry<"trails">;
-  next?: CollectionEntry<"trails">;
 }
 
-const { trail, next } = Astro.props;
-const { Content } = await render(trail);
+const { trail } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
-const readUrl = `${base}/read/${trail.id.replace(/\/index$/, "")}/`;
+const slug = trail.id.replace(/\/index$/, "");
+const scrollUrl = `${base}/scroll/${slug}/`;
 ---
 
-<Book title={`${trail.data.title} — Wanderlust`} description={trail.data.intro}>
-  <ChapterOpener
-    photo={trail.data.cover}
-    title={trail.data.title}
-    region={trail.data.region}
-    country={trail.data.country}
-    number={trail.data.order}
-  />
+<Reader title={`${trail.data.title} — Wanderlust`} description={trail.data.intro}>
+  <div class="book" id="book" tabindex="-1">
+    <!-- Cover page -->
+    <section class="sheet sheet--photo sheet--cover">
+      <Photo src={trail.data.cover} sizes="100vw" priority class="fill" alt="" />
+      <div class="cover__scrim"></div>
+      <div class="cover__type">
+        <p class="label">Trail {String(trail.data.order).padStart(2, "0")}</p>
+        <h1 class="cover__title">{trail.data.title}</h1>
+        <hr class="cover__rule" />
+        <p class="label">{trail.data.region} &mdash; {trail.data.country}</p>
+      </div>
+    </section>
 
-  <section class="chapter page">
-    <p class="standfirst measure">{trail.data.intro}</p>
-    <p><a class="read-link label" href={readUrl}>Read as a book &rarr;</a></p>
-    <DataBlock stats={trail.data.stats} />
-    <div class="prose measure">
-      <Content />
-    </div>
-  </section>
+    <!-- Colophon page: standfirst + the data block -->
+    <section class="sheet sheet--prose">
+      <div class="prose-block">
+        <p class="standfirst">{trail.data.intro}</p>
+        <DataBlock stats={trail.data.stats} />
+      </div>
+    </section>
 
-  {trail.data.spreads.map((spread) => <Spread spread={spread} />)}
-
-  <nav class="page next">
-    <hr class="rule" />
     {
-      next ? (
-        <a class="next__link" href={`${base}/trails/${next.id.replace(/\/index$/, "")}/`}>
-          <span class="label">Next trail</span>
-          <span class="next__title">{next.data.title}</span>
-        </a>
-      ) : (
-        <a class="next__link" href={`${base}/`}>
-          <span class="label">End of the book</span>
-          <span class="next__title">Back to contents</span>
-        </a>
-      )
+      trail.data.spreads.map((spread, i) => (
+        <BookSpread spread={spread} priority={i < 2} />
+      ))
     }
+
+    <!-- End page -->
+    <section class="sheet sheet--prose sheet--end">
+      <div class="prose-block">
+        <p class="label">End</p>
+        <h2 class="sheet__heading">{trail.data.title}</h2>
+        <p><a href={scrollUrl}>Read as a scrolling page</a></p>
+        <p><a href={`${base}/`}>Back to contents</a></p>
+      </div>
+    </section>
+  </div>
+
+  <nav class="controls" aria-label="Page navigation">
+    <a class="controls__exit label" href={scrollUrl}>&times; Close book</a>
+    <div class="controls__nav">
+      <button type="button" id="prev" class="controls__btn" aria-label="Previous page">
+        &larr;
+      </button>
+      <span class="controls__count label" id="count" aria-live="polite"></span>
+      <button type="button" id="next" class="controls__btn" aria-label="Next page">
+        &rarr;
+      </button>
+    </div>
   </nav>
-</Book>
+</Reader>
 
 <style>
-  .chapter {
-    padding-block: var(--space-xl);
-    display: grid;
-    gap: var(--space-l);
+  /* ---- The track --------------------------------------------------- */
+  .book {
+    display: flex;
+    height: 100svh;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
   }
-  .standfirst {
+  .book::-webkit-scrollbar {
+    display: none;
+  }
+  .book:focus {
+    outline: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .book {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* ---- Pages ------------------------------------------------------- */
+  /* `.page` is always one page. `.leaf` is one page in landscape and
+     dissolves in portrait so each `.part` inside becomes its own page. */
+  .book :global(.sheet),
+  .book :global(.leaf) {
+    flex: 0 0 100%;
+    height: 100svh;
+    scroll-snap-align: start;
+    position: relative;
+    margin: 0;
+    min-width: 0;
+  }
+  .book :global(.leaf) {
+    display: flex;
+    gap: var(--gap-photo);
+    padding: var(--gap-photo);
+    background: var(--paper);
+  }
+  .book :global(.leaf--2) > :global(.part) {
+    flex: 1 1 50%;
+  }
+  .book :global(.leaf--3) > :global(.part) {
+    flex: 1 1 33.333%;
+  }
+  .book :global(.leaf.is-left) {
+    flex-direction: row-reverse;
+  }
+  .book :global(.part) {
+    position: relative;
+    min-width: 0;
+    margin: 0;
+  }
+
+  /* Photographs fill their page or column edge to edge. */
+  .book :global(.sheet--photo) {
+    background: var(--ink);
+    overflow: hidden;
+  }
+  .book :global(.fill),
+  .book :global(.sheet--photo picture) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Prose pages are centred on paper, never full-bleed text. */
+  .book :global(.sheet--prose) {
+    background: var(--paper);
+    display: grid;
+    place-items: center;
+    padding: var(--gutter);
+  }
+  .book :global(.prose-block) {
+    max-width: var(--measure);
+    display: grid;
+    gap: var(--space-m);
+  }
+  .book :global(.sheet__heading) {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+  }
+  .book :global(.standfirst) {
     font-family: var(--font-display);
     font-size: var(--step-2);
     line-height: 1.3;
     margin: 0;
   }
-  .read-link {
-    color: var(--accent);
-    text-decoration: none;
-    border-bottom: 1px solid currentColor;
-    padding-bottom: 0.15em;
+  .book :global(.quote-block) {
+    margin: 0;
+    max-width: 40rem;
   }
-  .prose :global(h2) {
-    font-size: var(--step-1);
-    margin-top: var(--space-m);
-    margin-bottom: var(--space-xs);
-  }
-  .next {
-    padding-block: var(--space-l) 0;
-    margin-top: var(--space-2xl);
-  }
-  .next__link {
-    display: grid;
-    gap: var(--space-2xs);
-    padding-top: var(--space-s);
-    text-decoration: none;
-  }
-  .next__title {
+  .book :global(.quote-block blockquote) {
+    margin: 0 0 var(--space-m);
     font-family: var(--font-display);
-    font-size: var(--step-2);
+    font-style: italic;
+    font-size: var(--step-3);
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  /* Captions float over the foot of a photograph. */
+  .book :global(.sheet__caption),
+  .book :global(.leaf__caption) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* Bottom padding clears the fixed control bar. */
+    padding: var(--space-l) var(--gutter) 3.5rem;
+    font-size: var(--step--1);
+    color: rgb(247 245 240 / 0.92);
+    background: linear-gradient(to top, rgb(12 11 10 / 0.66), rgb(12 11 10 / 0));
+  }
+  /* Captions sit beside the close link, which occupies the bottom left. */
+  .book :global(.sheet__caption) {
+    padding-left: 11rem;
+  }
+  .book :global(.leaf__caption) {
+    padding-inline: 11rem var(--gap-photo);
+  }
+
+  /* ---- Cover ------------------------------------------------------- */
+  .sheet--cover :global(.cover__scrim) {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgb(12 11 10 / 0.62) 0%,
+      rgb(12 11 10 / 0.25) 38%,
+      rgb(12 11 10 / 0) 66%
+    );
+  }
+  .cover__type {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: var(--gutter);
+    padding-bottom: clamp(4rem, 12vh, 7rem);
+    color: var(--ink-invert);
+  }
+  /* .label is ink-muted by default, which disappears over a photograph. */
+  .cover__type :global(.label) {
+    color: rgb(247 245 240 / 0.82);
+  }
+  .cover__title {
+    font-size: var(--step-4);
+    margin: var(--space-xs) 0 var(--space-s);
+    max-width: 14ch;
+  }
+  .cover__rule {
+    border: 0;
+    border-top: 1px solid rgb(247 245 240 / 0.4);
+    width: min(100%, 22rem);
+    margin: 0 0 var(--space-s);
+  }
+
+  /* ---- Split mode: portrait, or a genuinely narrow screen ---------- */
+  @media (max-aspect-ratio: 1 / 1), (max-width: 34rem) {
+    .book :global(.leaf) {
+      display: contents;
+    }
+    .book :global(.part) {
+      flex: 0 0 100%;
+      height: 100svh;
+      scroll-snap-align: start;
+    }
+    /* The wrapper is gone, so its caption has no page to sit on. */
+    .book :global(.leaf__caption) {
+      display: none;
+    }
+  }
+
+  /* ---- Controls ---------------------------------------------------- */
+  .controls {
+    position: fixed;
+    inset: auto 0 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding: var(--space-s) var(--gutter);
+    pointer-events: none;
+  }
+  .controls > * {
+    pointer-events: auto;
+  }
+  .controls__exit {
+    text-decoration: none;
+    color: var(--ink-invert);
+    mix-blend-mode: difference;
+  }
+  .controls__nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background: rgb(247 245 240 / 0.92);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0.25rem 0.5rem;
+    backdrop-filter: blur(6px);
+  }
+  .controls__btn {
+    font: inherit;
+    font-size: var(--step-0);
+    line-height: 1;
+    background: none;
+    border: 0;
+    color: var(--ink);
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 999px;
+  }
+  .controls__btn:hover:not(:disabled) {
+    background: var(--paper-deep);
+  }
+  .controls__btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+  .controls__count {
+    min-width: 4.5rem;
+    text-align: center;
+    color: var(--ink-muted);
   }
 </style>
+
+<script>
+  const book = document.getElementById("book") as HTMLElement | null;
+  const prev = document.getElementById("prev") as HTMLButtonElement | null;
+  const next = document.getElementById("next") as HTMLButtonElement | null;
+  const count = document.getElementById("count");
+  if (book && prev && next && count) {
+    // Snap pages are whichever boxes currently carry scroll-snap-align, which
+    // changes with orientation - so recompute rather than caching a list.
+    const pages = () =>
+      [...book.children]
+        .flatMap((child) =>
+          getComputedStyle(child).display === "contents"
+            ? ([...child.children] as HTMLElement[])
+            : [child as HTMLElement],
+        )
+        // A dissolved leaf also promotes its caption to a flex child; that
+        // caption is display:none in split mode and must not count as a page.
+        .filter((el) => el.getBoundingClientRect().width > 0);
+
+    const index = () => {
+      const x = book.scrollLeft;
+      const list = pages();
+      let best = 0;
+      let dist = Infinity;
+      list.forEach((el, i) => {
+        const d = Math.abs(el.offsetLeft - x);
+        if (d < dist) {
+          dist = d;
+          best = i;
+        }
+      });
+      return { i: best, list };
+    };
+
+    const go = (step: number) => {
+      const { i, list } = index();
+      const target = list[Math.min(Math.max(i + step, 0), list.length - 1)];
+      if (target) book.scrollTo({ left: target.offsetLeft });
+    };
+
+    const sync = () => {
+      const { i, list } = index();
+      count.textContent = `${i + 1} / ${list.length}`;
+      prev.disabled = i === 0;
+      next.disabled = i === list.length - 1;
+    };
+
+    prev.addEventListener("click", () => go(-1));
+    next.addEventListener("click", () => go(1));
+
+    document.addEventListener("keydown", (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === "ArrowRight" || e.key === "PageDown") {
+        e.preventDefault();
+        go(1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault();
+        go(-1);
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        book.scrollTo({ left: 0 });
+      } else if (e.key === "End") {
+        e.preventDefault();
+        book.scrollTo({ left: book.scrollWidth });
+      }
+    });
+
+    let raf = 0;
+    book.addEventListener("scroll", () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(sync);
+    });
+    window.addEventListener("resize", sync);
+    sync();
+  }
+</script>
