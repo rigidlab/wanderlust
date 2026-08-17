@@ -27,6 +27,16 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Restored after `npm ci` on purpose: the cache used to live inside
+      # node_modules, which npm ci deletes. Keyed on the photographs, so
+      # adding a chapter only re-encodes that chapter's images - the
+      # restore-keys fall back to the most recent cache for everything else.
+      - uses: actions/cache@v4
+        with:
+          path: .astro-cache
+          key: astro-assets-${{ hashFiles('src/content/trails/**/photos/**') }}
+          restore-keys: |
+            astro-assets-
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
